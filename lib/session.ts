@@ -5,6 +5,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { JWT } from 'next-auth/jwt';
 import { SessionInterface, UserProfile } from '@/common.types';
 import { createUser, getUser } from './actions';
+import * as jsonwebtoken from 'jsonwebtoken';
 
 export const authOption: NextAuthOptions = {
   providers: [
@@ -13,10 +14,22 @@ export const authOption: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  //   jwt: {
-  //     encode: ({ secret, token }) => {},
-  //     decode: async ({ secret, token }) => {},
-  //   },
+  jwt: {
+    encode: ({ secret, token }) => {
+      return jsonwebtoken.sign(
+        {
+          ...token,
+          iss: 'grafbase',
+          exp: Math.floor(Date.now() / 1000) + 60 * 60, //add 1 hour to the current date.s
+        },
+        secret
+      );
+    },
+
+    decode: async ({ secret, token }) => {
+      return jsonwebtoken.verify(token!, secret) as JWT;
+    },
+  },
   theme: {
     colorScheme: 'light',
     logo: '/logo.png',

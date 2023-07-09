@@ -12,15 +12,18 @@ query GetUser($email:String){
 `;
 
 export const createUserMutation = `
-mutation CreateUser($input:UserCreateInput!){
-    userCreate(input:$input){
-        user{
-            name
-            email
-            description
-            githubURL
-            linkedIn
-        }
+mutation UserCreate ($input:UserCreateInput!) {
+  userCreate(input: $input){ 
+    user {
+      name
+      email
+      avatarURL
+      description
+      githubURL
+      linkedIn
     }
+  }
+    
+  
 }
 `;
