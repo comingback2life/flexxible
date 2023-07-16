@@ -5,10 +5,10 @@ import Image from 'next/image';
 import React, { ChangeEvent, useState } from 'react';
 import FormField from '../create-project/FormField';
 import { categoryFilters } from '@/constants';
-import CustomMenu from '../create-project/CustomMenu';
 import Button from './Button';
 import { createNewProject, fetchToken, updateProject } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
+import CustomMenu from './CustomMenu';
 
 type Props = {
   type: string;
