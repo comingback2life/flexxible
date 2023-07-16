@@ -3,7 +3,12 @@ import { ProjectForm } from '@/common.types';
 import {
   CreateProjectMutation,
   createUserMutation,
+  deleteProjectMutation,
+  getProjectByIdQuery,
+  getProjectsOfUserQuery,
   getUserQuery,
+  projectsQuery,
+  updateProjectMutation,
 } from '@/graphql';
 import { GraphQLClient } from 'graphql-request';
 const isProduction = process.env.NODE_ENV === 'production';
@@ -52,7 +57,9 @@ export const fetchToken = async () => {
   try {
     const response = await fetch(`${serverUrl}/api/auth/token`);
     return response.json();
-  } catch (error) {}
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const uploadImage = async (imagePath: string) => {
@@ -74,7 +81,7 @@ export const createNewProject = async (
 ) => {
   const imageUrl = await uploadImage(form.image);
 
-  client.setHeader('Authorization', `Bearer${token}`);
+  client.setHeader('Authorization', `Bearer ${token}`);
   if (imageUrl.url) {
     const variables = {
       input: {
@@ -87,4 +94,64 @@ export const createNewProject = async (
     };
     return makeGraphQLRequest(CreateProjectMutation, variables);
   }
+};
+
+export const fetchAllProjects = async (
+  category?: string,
+  endcursor?: string
+) => {
+  client.setHeader('x-api-key', apiKey);
+  return makeGraphQLRequest(projectsQuery, {
+    category,
+    endcursor,
+  });
+};
+
+export const getProjectDetails = async (id: string) => {
+  client.setHeader('x-api-key', apiKey);
+  return makeGraphQLRequest(getProjectByIdQuery, { id });
+};
+export const getUserProjects = async (id: string, last?: number) => {
+  client.setHeader('x-api-key', apiKey);
+  return makeGraphQLRequest(getProjectsOfUserQuery, { id, last });
+};
+
+export const deleteProject = async (id: string, token: string) => {
+  client.setHeader('Authorization', `Bearer ${token}`);
+  return makeGraphQLRequest(deleteProjectMutation, { id });
+};
+export const updateProject = async (
+  form: ProjectForm,
+  projectId: string,
+  token: string
+) => {
+  function isBase64DataURL(value: string) {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
+    const regex = /^data:[\w\/+\-]+;base64,([A-Za-z0-9+/]+={0,2})$/;
+    return regex.test(value);
+  }
+
+  let updatedForm = {
+    ...form,
+  };
+  const isUploadingNewImage = isBase64DataURL(form.image);
+  if (isUploadingNewImage) {
+    const imageURL = await uploadImage(form.image);
+    if (imageURL?.url) {
+      updatedForm = {
+        ...updatedForm,
+        image: imageURL.url,
+      };
+    }
+  }
+  const variables = {
+    id: projectId!,
+    input: updatedForm,
+  };
+
+  client.setHeader('Authorization', `Bearer ${token}`);
+  return makeGraphQLRequest(updateProjectMutation, variables);
 };

@@ -4,8 +4,8 @@ export type FormState = {
   title: string;
   description: string;
   image: string;
-  liveSiteUrl: string;
-  githubUrl: string;
+  site: string;
+  githubURL: string;
   category: string;
 };
 
@@ -13,14 +13,14 @@ export interface ProjectInterface {
   title: string;
   description: string;
   image: string;
-  liveSiteUrl: string;
-  githubUrl: string;
+  site: string;
+  githubURL: string;
   category: string;
   id: string;
   createdBy: {
     name: string;
     email: string;
-    avatarUrl: string;
+    avatarURL: string;
     id: string;
   };
 }
@@ -30,8 +30,8 @@ export interface UserProfile {
   name: string;
   email: string;
   description: string | null;
-  avatarUrl: string;
-  githubUrl: string | null;
+  avatarURL: string;
+  githubURL: string | null;
   linkedinUrl: string | null;
   projects: {
     edges: { node: ProjectInterface }[];
@@ -49,7 +49,7 @@ export interface SessionInterface extends Session {
     id: string;
     name: string;
     email: string;
-    avatarUrl: string;
+    avatarURL: string;
   };
 }
 
@@ -57,7 +57,7 @@ export interface ProjectForm {
   title: string;
   description: string;
   image: string;
-  liveSiteUrl: string;
-  githubUrl: string;
+  site: string;
+  githubURL: string;
   category: string;
 }

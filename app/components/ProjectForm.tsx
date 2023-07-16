@@ -1,41 +1,53 @@
 'use client';
 
-import { SessionInterface } from '@/common.types';
+import { ProjectInterface, SessionInterface } from '@/common.types';
 import Image from 'next/image';
 import React, { ChangeEvent, useState } from 'react';
-import FormField from './FormField';
+import FormField from '../create-project/FormField';
 import { categoryFilters } from '@/constants';
-import CustomMenu from './CustomMenu';
+import CustomMenu from '../create-project/CustomMenu';
 import Button from './Button';
-import { createNewProject } from '@/lib/actions';
+import { createNewProject, fetchToken, updateProject } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
+
 type Props = {
   type: string;
   session: SessionInterface;
+  project?: ProjectInterface;
 };
 
 enum PossibleChildTypes {
   Create = 'create',
 }
-const ProjectForm = ({ type, session }: Props) => {
+const ProjectForm = ({ type, session, project }: Props) => {
+  const router = useRouter();
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    image: '',
-    site: '',
-    githubURL: '',
-    category: '',
-    createdBy: '',
+    title: project?.title || '',
+    description: project?.description || '',
+    image: project?.image || '',
+    site: project?.site || '',
+    githubURL: project?.githubURL || '',
+    category: project?.category || '',
   });
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     const { token } = await fetchToken();
     try {
       if (type === 'create') {
         await createNewProject(form, session?.user?.id, token);
+        router.push('/');
       }
-    } catch (error) {}
+      if (type === 'edit') {
+        await updateProject(form, project?.id as string, token);
+        router.push('/');
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -96,7 +108,7 @@ const ProjectForm = ({ type, session }: Props) => {
         title="Website URL"
         state={form?.site}
         placeholder="https://hello.com"
-        setState={(value) => handleStateChange('liveSiteUrl', value)}
+        setState={(value) => handleStateChange('site', value)}
       />
       <FormField
         type="url"
@@ -121,6 +133,7 @@ const ProjectForm = ({ type, session }: Props) => {
           type="submit"
           leftIcon={isSubmitting ? '' : '/plus.svg'}
           isSubmitting={isSubmitting}
+          handleClick={handleFormSubmit}
         ></Button>
       </div>
     </form>

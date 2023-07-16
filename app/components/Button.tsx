@@ -3,12 +3,12 @@ import React, { MouseEventHandler } from 'react';
 type Props = {
   title: string;
   type?: 'button' | 'submit';
-  leftIcon: string;
   handleClick?: MouseEventHandler;
   isSubmitting?: boolean;
   bgColor?: string;
   textColor?: string;
   rightIcon?: string;
+  leftIcon?: string;
 };
 const Button = ({
   title,
